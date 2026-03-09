@@ -2,29 +2,29 @@
   {
     "id": 0,
     "name": "Hollow Knight",
-    "cover": "{COVER_URL}/0.png",
-    "url": "{HTML_URL}/0.html",
-    "author": "aukak",
+    "cover": "https://cdn.jsdelivr.net/gh/1qatu/covers/0.png",
+    "url": "https://cdn.jsdelivr.net/gh/1qatu/hollow-knight/index.html",
+    "author": "aukak"
   },
   {
     "id": 1,
     "name": "Gorilla Tag",
-    "cover": "{COVER_URL}/1.png",
-    "url": "{HTML_URL}/1.html",
-    "author": "boolonx",
+    "cover": "https://cdn.jsdelivr.net/gh/1qatu/covers/1.png",
+    "url": "https://cdn.jsdelivr.net/gh/1qatu/gorilla-tag/index.html",
+    "author": "boolonx"
   },
   {
     "id": 2,
     "name": "Raldi's Crackhouse",
-    "cover": "{COVER_URL}/2.png",
-    "url": "{HTML_URL}/2.html",
-    "author": "greyson",
+    "cover": "https://cdn.jsdelivr.net/gh/1qatu/covers/2.png",
+    "url": "https://cdn.jsdelivr.net/gh/1qatu/raldis-crackhouse/index.html",
+    "author": "greyson"
   },
   {
     "id": 3,
     "name": "Minecraft 1.12",
-    "cover": "{COVER_URL}/3.png",
-    "url": "{HTML_URL}/3.html",
-    "author": "ratman4090, lax1dude",
-  },
+    "cover": "https://cdn.jsdelivr.net/gh/1qatu/covers/3.png",
+    "url": "https://cdn.jsdelivr.net/gh/1qatu/eaglercraft-1.12/index.html",
+    "author": "ratman4090, lax1dude"
+  }
 ]

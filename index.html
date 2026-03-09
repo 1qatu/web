@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>UBP</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #101014;
+      --surface: #18181d;
+      --surface2: #1f1f26;
+      --border: #27272f;
+      --border2: #383848;
+      --text: #e2e2ec;
+      --muted: #62627a;
+      --dim: #3a3a4a;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    nav {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      z-index: 50;
+      gap: 16px;
+    }
+
+    .logo {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo i { font-size: 0.9rem; opacity: 0.7; }
+
+    .nav-center {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+    }
+
+    .nav-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color .12s, background .12s;
+    }
+
+    .nav-tab i { font-size: 0.75rem; }
+    .nav-tab:hover { color: var(--text); }
+    .nav-tab.on { color: var(--text); background: var(--surface2); }
+
+    .nav-search {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .nav-search i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.72rem;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .nav-search input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 6px 10px 6px 28px;
+      font-size: 0.78rem;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      width: 180px;
+      transition: border-color .12s, width .2s;
+    }
+
+    .nav-search input:focus { border-color: var(--border2); width: 220px; }
+    .nav-search input::placeholder { color: var(--dim); }
+    #view-home, #view-author { display: none; }
+    #view-home.show, #view-author.show { display: block; }
+    .inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+
+    .page-head {
+      margin-bottom: 24px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .page-head h2 { font-size: 1rem; font-weight: 600; }
+    .page-head span { font-size: 0.75rem; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color .12s, transform .12s;
+    }
+
+    .card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+    .card-thumb {
+      aspect-ratio: 1;
+      background: var(--surface2);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card-thumb img.cover { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .card-thumb .fallback {
+      position: absolute; inset: 0;
+      display: none;
+      align-items: center; justify-content: center;
+    }
+
+    .card-thumb .fallback img {
+      width: 38%; height: 38%;
+      object-fit: contain; opacity: 0.35;
+    }
+
+    .card-info { padding: 9px 10px 10px; }
+
+    .card-name {
+      font-size: 0.8rem; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .card-authors { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 5px; }
+
+    .author-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.67rem; color: var(--muted);
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 99px; padding: 1px 6px 1px 2px;
+      cursor: pointer; font-family: inherit;
+      transition: color .1s, border-color .1s;
+    }
+
+    .author-chip:hover { color: var(--text); border-color: var(--border2); }
+
+    .author-chip img {
+      width: 14px; height: 14px;
+      border-radius: 50%; object-fit: cover;
+      background: var(--dim);
+    }
+    .back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.78rem; color: var(--muted);
+      background: none; border: none; font-family: inherit;
+      cursor: pointer; padding: 0; margin-bottom: 22px;
+      transition: color .1s;
+    }
+
+    .back:hover { color: var(--text); }
+
+    .author-header {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 24px; padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #a-pfp {
+      width: 52px; height: 52px; border-radius: 50%;
+      object-fit: cover; border: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .author-header h2 { font-size: 1.05rem; font-weight: 700; }
+    .author-header p { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+    #modal { display: none; position: fixed; inset: 0; z-index: 200; background: var(--bg); }
+    #modal.open { display: block; }
+
+    .modal-bar {
+      position: absolute; top: 0; left: 0; right: 0; height: 46px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 14px;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      z-index: 1;
+    }
+
+    .modal-left { display: flex; align-items: center; gap: 10px; }
+    .modal-title { font-size: 0.83rem; font-weight: 600; }
+    .modal-author { font-size: 0.71rem; color: var(--muted); cursor: pointer; transition: color .1s; }
+    .modal-author:hover { color: var(--text); }
+    .modal-acts { display: flex; gap: 5px; }
+
+    .mbtn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 11px; border-radius: 6px;
+      font-size: 0.74rem; font-weight: 500; font-family: inherit;
+      cursor: pointer; border: 1px solid var(--border);
+      background: none; color: var(--muted); text-decoration: none;
+      transition: color .1s, background .1s;
+    }
+
+    .mbtn i { font-size: 0.7rem; }
+    .mbtn:hover { color: var(--text); background: var(--surface2); }
+    .mbtn.danger { border-color: transparent; color: #d95555; }
+    .mbtn.danger:hover { background: rgba(217,85,85,.1); }
+
+    .frame-wrap { position: absolute; top: 46px; left: 0; right: 0; bottom: 0; }
+
+    #frame { width: 100%; height: 100%; border: none; display: block; }
+
+    .loading-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg); flex-direction: column; gap: 12px;
+      font-size: 0.82rem; color: var(--muted);
+    }
+
+    .spinner {
+      width: 22px; height: 22px;
+      border: 2px solid var(--border); border-top-color: var(--muted);
+      border-radius: 50%; animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty { text-align: center; padding: 60px 0; color: var(--muted); font-size: 0.82rem; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="showHome()">
+    <i class="fa-solid fa-atom"></i>
+    UBP - Unblocked Ports
+  </div>
+
+  <div class="nav-center">
+    <div class="nav-tabs">
+      <button class="nav-tab on" id="nb-games" onclick="showHome()">
+        <i class="fa-solid fa-gamepad"></i> Games
+      </button>
+      <button class="nav-tab" id="nb-authors" onclick="showAuthorsPage()">
+        <i class="fa-solid fa-users"></i> Credits
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input id="search" type="text" placeholder="Search games…" autocomplete="off" spellcheck="false"/>
+  </div>
+</nav>
+<div id="view-home" class="show">
+  <div class="inner">
+    <div class="page-head">
+      <h2>All ports</h2>
+      <span id="count-label"> games</span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+<div id="view-authors-list" style="display:none">
+  <div class="inner">
+    <div class="page-head"><h2>Credits</h2></div>
+    <div id="authors-list-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;"></div>
+  </div>
+</div>
+<div id="view-author">
+  <div class="inner">
+    <button class="back" onclick="showAuthorsPage()">
+      <i class="fa-solid fa-arrow-left"></i> Authors
+    </button>
+    <div class="author-header">
+      <img id="a-pfp" src="" alt=""/>
+      <div>
+        <h2 id="a-name"></h2>
+        <p id="a-sub"></p>
+      </div>
+    </div>
+    <div class="grid" id="author-grid"></div>
+  </div>
+</div>
+<div id="modal">
+  <div class="modal-bar">
+    <div class="modal-left">
+      <span class="modal-title" id="mtitle"></span>
+      <span class="modal-author" id="mauthor"></span>
+    </div>
+    <div class="modal-acts">
+      <button class="mbtn" id="mnewtab-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i> New Tab</button>
+      <button class="mbtn danger" onclick="closeModal()"><i class="fa-solid fa-xmark"></i> Close</button>
+    </div>
+  </div>
+  <div class="frame-wrap">
+    <div class="loading-overlay" id="loading">
+      <div class="spinner"></div>
+      <span>Loading…</span>
+    </div>
+    <iframe id="frame" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+const AUTHOR_GH = {
+  'aukak':        'aukak',
+  'boolonx':      'bollonx',
+  'greyson':      null,
+  'ratman4090':   'qatual',
+  'lax1dude':     'lax1dude',
+  'genizy':       'genizy',
+  '98Corbins':    '98cornbin',
+  'burnedpopcorn':'burnedpopcorn',
+  'koi/_flixel':  null,
+  'slqnt':        'slqntdevss',
+  'irv77':        'irv77',
+  'SpanishFreddy':'spanishfreddy',
+};
+
+const FALLBACK = 'https://emoji.discadia.com/emojis/eaf204fe-1eaf-440f-b26a-ccb76f6f4ce4.png';
+
+function ghAv(name) {
+  const gh = AUTHOR_GH[name];
+  return gh ? `https://avatars.githubusercontent.com/${gh}?s=80` : FALLBACK;
+}
+
+const C = 'https://cdn.jsdelivr.net/gh/gn-math/covers';
+const B = 'https://cdn.jsdelivr.net/gh/genizy/web-port';
+
+const games = [
+  { id:0,  name:'Hollow Knight',               cover:'https://cdn.jsdelivr.net/gh/1qatu/covers/0.png',         url:'https://cdn.jsdelivr.net/gh/1qatu/hollow-knight/index.html',         authors:['aukak'] },
+  { id:1,  name:'Gorilla Tag',                 cover:'https://cdn.jsdelivr.net/gh/1qatu/covers/1.png',         url:'https://cdn.jsdelivr.net/gh/1qatu/gorilla-tag/index.html',           authors:['boolonx'] },
+  { id:2,  name:"Raldi's Crackhouse",          cover:'https://cdn.jsdelivr.net/gh/1qatu/covers/2.png',         url:'https://cdn.jsdelivr.net/gh/1qatu/raldis-crackhouse/index.html',     authors:['greyson'] },
+  { id:3,  name:'Minecraft 1.12',              cover:'https://cdn.jsdelivr.net/gh/1qatu/covers/3.png',         url:'https://cdn.jsdelivr.net/gh/1qatu/eaglercraft-1.12/index.html',      authors:['ratman4090','lax1dude'] },
+  { id:4,  name:'Amanda the Adventurer',       cover:`${C}/450.png`,  url:`${B}/amanda-the-adventurer/index.html`,       authors:['genizy'] },
+  { id:5,  name:"Andy's Apple Farm",           cover:`${C}/426.png`,       url:`${B}/andys-apple-farm/index.html`,             authors:['genizy'] },
+  { id:467,name:"Baldi's Basics Plus",         cover:`${C}/467.png`,                    url:`${B}/baldi-plus/index.html`,                   authors:['koi/_flixel'] },
+  { id:6,  name:"Baldi's Basics Remastered",   cover:`${C}/466.png`,         url:`${B}/baldi-remaster/index.html`,               authors:['koi/_flixel'] },
+  { id:215,name:'Bendy and the Ink Machine',   cover:`${C}/215.png`,                    url:`${B}/bendy/index.html`,                        authors:['98Corbins'] },
+  { id:7,  name:'Bergen Truck Simulator',      cover:`${C}/455.png`,            url:`${B}/bergentruck/index.html`,                  authors:['genizy'] },
+  { id:8,  name:'Blood Money',                 cover:`${C}/454.png`,             url:`${B}/bloodmoney/index.html`,                   authors:['genizy'] },
+  { id:205,name:'Buckshot Roulette',           cover:`${C}/205.png`,                    url:`${B}/buckshot-roulette/index.html`,            authors:['genizy'] },
+  { id:259,name:"Class of '09",                cover:`${C}/259.png`,                    url:`${B}/class-of-09/index.html`,                  authors:['genizy'] },
+  { id:9,  name:'Cuphead',                     cover:`${C}/465.png`,                url:`${B}/cuphead/index.html`,                      authors:['genizy'] },
+  { id:10, name:'Dead Plate',                  cover:`${C}/462.png`,             url:`${B}/dead-plate/index.html`,                   authors:['genizy'] },
+  { id:11, name:'Dead Seat',                   cover:`${C}/458.png`,               url:`${B}/deadseat/index.html`,                     authors:['slqnt'] },
+  { id:12, name:'Deltarune Traveler',          cover:`${C}/560.png`,          url:`${B}/deltatraveler/index.html`,                authors:['genizy'] },
+  { id:193,name:'Do NOT Take This Cat Home',   cover:`${C}/193.png`,                    url:`${B}/donottakethiscathome/index.html`,         authors:['genizy'] },
+  { id:13, name:'Fears to Fathom',             cover:`${C}/460.png`,        url:`${B}/fears-to-fathom/home-alone/index.html`,  authors:['slqnt'] },
+  { id:14, name:'Getting Over It',             cover:`${C}/557.png`,        url:`${B}/getting-over-it/index.html`,              authors:['genizy'] },
+  { id:351,name:'Happy Sheepies',              cover:`${C}/351.png`,                    url:`${B}/happy-sheepies/index.html`,               authors:['genizy'] },
+  { id:217,name:'Hotline Miami',               cover:`${C}/217.png`,                    url:`${B}/hotline-miami/index.html`,                authors:['98Corbins'] },
+  { id:15, name:'Human Expenditure Program',   cover:`${C}/482.png`, url:`${B}/human-expenditure-program/index.html`, authors:['genizy'] },
+  { id:16, name:'Jelly Drift',                 cover:`${C}/543.png`,            url:`${B}/jelly-drift/index.html`,                  authors:['genizy'] },
+  { id:17, name:'Karlson',                     cover:`${C}/542.png`,                url:`${B}/karlson/index.html`,                      authors:['genizy'] },
+  { id:18, name:'Kindergarten',                cover:`${C}/445.png`,           url:`${B}/kindergarten/index.html`,                 authors:['genizy'] },
+  { id:19, name:"Lacy's Flash Games",          cover:`${C}/463.png`,        url:`${B}/lacysflashgames/index.html`,              authors:['genizy'] },
+  { id:22, name:'OMORI',                       cover:`${C}/427.png`,            url:`${B}/omori-fixed/index.html`,                  authors:['genizy'] },
+  { id:194,name:'People Playground',           cover:`${C}/194-m.png`,                  url:`${B}/people-playground/index.html`,            authors:['98Corbins'] },
+  { id:267,name:'Pizza Tower',                 cover:`${C}/267.png`,                    url:`${B}/pizza-tower/index.html`,                  authors:['burnedpopcorn'] },
+  { id:23, name:'Raft',                        cover:`${C}/457.png`,                   url:`${B}/raft/index.html`,                         authors:['genizy'] },
+  { id:195,name:'R.E.P.O',                     cover:`${C}/195.png`,                    url:`${B}/repo/index.html`,                         authors:['98Corbins'] },
+  { id:24, name:'Schoolboy Runaway',           cover:`${C}/605.png`,      url:`${B}/schoolboy-runaway/index.html`,            authors:['genizy'] },
+  { id:25, name:'Slender: The Eight Pages',    cover:`${C}/451.png`,               url:`${B}/slender/index.html`,                      authors:['genizy'] },
+  { id:26, name:'Sonic.exe',                   cover:`${C}/598.png`,              url:`${B}/sonic.exe/index.html`,                    authors:['genizy'] },
+  { id:266,name:'Speed Stars',                 cover:`${C}/266.png`,                    url:`${B}/speed-stars/index.html`,                  authors:['98Corbins'] },
+  { id:27, name:'Tattletail',                  cover:`${C}/607.png`,             url:`${B}/tattletail/index.html`,                   authors:['genizy'] },
+  { id:216,name:"That's Not My Neighbor",      cover:`${C}/216.png`,                    url:`${B}/thats-not-my-neighbor/index.html`,        authors:['genizy'] },
+  { id:28, name:'The Man in the Window',       cover:`${C}/459.png`,  url:`${B}/the-man-in-the-window/index.html`,        authors:['genizy'] },
+  { id:196,name:'ULTRAKILL',                   cover:`${C}/196.png`,                    url:`${B}/ultrakill/index.html`,                    authors:['98Corbins'] },
+  { id:29, name:'Undertale Yellow',            cover:`${C}/456.png`,       url:`${B}/undertale-yellow/index.html`,             authors:['burnedpopcorn'] },
+  { id:30, name:'WebFishing',                  cover:`${C}/423.png`,            url:`${B}/web-fishing/index.html`,                  authors:['genizy'] },
+  { id:31, name:'Yandere Simulator',           cover:`${C}/554.png`,      url:`${B}/yandere-simulator/index.html`,            authors:['genizy'] },
+  { id:32, name:'Yume Nikki',                  cover:`${C}/433.png`,             url:`${B}/yume-nikki/index.html`,                   authors:['genizy'] },
+  { id:67,  name:'Battle For Dream Island: 5b',               cover:'https://cdn.jsdelivr.net/gh/solo-central/bfdi-5b/data/bfdi.ico',         url:'https://cdn.jsdelivr.net/gh/solo-central/bfdi-5b/index.html',         authors:['ratman4090'] },
+];
+
+const allAuthors = [...new Set(games.flatMap(g => g.authors))];
+let currentGame = null;
+
+function setView(id) {
+  ['view-home','view-authors-list','view-author'].forEach(v => {
+    const el = document.getElementById(v);
+    el.classList.remove('show');
+    el.style.display = 'none';
+  });
+  const target = document.getElementById(id);
+  target.style.display = 'block';
+  target.classList.add('show');
+}
+
+function makeCard(g) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const chips = g.authors.map(a => {
+    const av = ghAv(a);
+    return `<button class="author-chip" data-a="${a}">
+      <img src="${av}" alt="${a}" onerror="this.src='${FALLBACK}'">
+      ${a}
+    </button>`;
+  }).join('');
+
+  card.innerHTML = `
+    <div class="card-thumb">
+      <img class="cover" src="${g.cover}" alt="${g.name}" loading="lazy"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="fallback"><img src="${FALLBACK}" alt=""></div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">${g.name}</div>
+      <div class="card-authors">${chips}</div>
+    </div>
+  `;
+
+  card.addEventListener('click', e => {
+    if (e.target.closest('.author-chip')) return;
+    openGame(g);
+  });
+
+  card.querySelectorAll('.author-chip').forEach(btn =>
+    btn.addEventListener('click', e => { e.stopPropagation(); showAuthor(btn.dataset.a); })
+  );
+
+  return card;
+}
+
+function renderGrid(list, container) {
+  container.innerHTML = '';
+  if (!list.length) { container.innerHTML = '<div class="empty">No games found.</div>'; return; }
+  list.forEach(g => container.appendChild(makeCard(g)));
+}
+
+let filtered = [...games];
+
+function doRender() {
+  renderGrid(filtered, document.getElementById('grid'));
+  document.getElementById('count-label').textContent =
+    filtered.length === games.length ? `${games.length} games` : `${filtered.length} of ${games.length}`;
+}
+
+doRender();
+
+document.getElementById('search').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  filtered = q
+    ? games.filter(g => g.name.toLowerCase().includes(q) || g.authors.join(' ').toLowerCase().includes(q))
+    : [...games];
+  doRender();
+});
+
+function showHome() {
+  setView('view-home');
+  document.getElementById('nb-games').classList.add('on');
+  document.getElementById('nb-authors').classList.remove('on');
+  window.scrollTo({ top: 0 });
+}
+
+function showAuthorsPage() {
+  setView('view-authors-list');
+  document.getElementById('nb-games').classList.remove('on');
+  document.getElementById('nb-authors').classList.add('on');
+
+  const grid = document.getElementById('authors-list-grid');
+  grid.innerHTML = '';
+
+  allAuthors.forEach(name => {
+    const count = games.filter(g => g.authors.includes(name)).length;
+    const av = ghAv(name);
+    const card = document.createElement('div');
+    card.style.cssText = `
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:10px;padding:14px 16px;
+      display:flex;align-items:center;gap:12px;
+      cursor:pointer;transition:border-color .12s,transform .12s;
+    `;
+    card.innerHTML = `
+      <img src="${av}" alt="${name}" onerror="this.src='${FALLBACK}'"
+           style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--surface2);border:1px solid var(--border);">
+      <div>
+        <div style="font-size:0.85rem;font-weight:600;">${name}</div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">${count} port${count !== 1 ? 's' : ''}</div>
+      </div>
+    `;
+    card.addEventListener('mouseenter', () => { card.style.borderColor = 'var(--border2)'; card.style.transform = 'translateY(-2px)'; });
+    card.addEventListener('mouseleave', () => { card.style.borderColor = 'var(--border)'; card.style.transform = ''; });
+    card.addEventListener('click', () => showAuthor(name));
+    grid.appendChild(card);
+  });
+
+  window.scrollTo({ top: 0 });
+}
+
+function showAuthor(name) {
+  const av = ghAv(name);
+  const pfp = document.getElementById('a-pfp');
+  pfp.src = av;
+  pfp.onerror = () => { pfp.src = FALLBACK; };
+  document.getElementById('a-name').textContent = name;
+  const ag = games.filter(g => g.authors.includes(name));
+  document.getElementById('a-sub').textContent = `${ag.length} port${ag.length !== 1 ? 's' : ''}`;
+  renderGrid(ag, document.getElementById('author-grid'));
+  setView('view-author');
+  document.getElementById('nb-games').classList.remove('on');
+  document.getElementById('nb-authors').classList.add('on');
+  window.scrollTo({ top: 0 });
+}
+
+async function openGame(g) {
+  currentGame = g;
+  document.getElementById('mtitle').textContent = g.name;
+  document.getElementById('mauthor').textContent = 'by ' + g.authors.join(', ');
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('frame').style.display = 'none';
+  document.getElementById('modal').classList.add('open');
+
+  try {
+    const res = await fetch(g.url + '?t=' + Date.now());
+    const html = await res.text();
+    const frame = document.getElementById('frame');
+    frame.contentDocument.open();
+    frame.contentDocument.write(html);
+    frame.contentDocument.close();
+    document.getElementById('loading').style.display = 'none';
+    frame.style.display = 'block';
+  } catch (err) {
+    document.getElementById('loading').innerHTML = `<span style="color:#d95555"><i class="fa-solid fa-triangle-exclamation"></i> Failed to load game.</span>`;
+  }
+}
+
+document.getElementById('mnewtab-btn').addEventListener('click', async () => {
+  if (!currentGame) return;
+  const win = window.open('about:blank', '_blank');
+  try {
+    const res = await fetch(currentGame.url + '?t=' + Date.now());
+    const html = await res.text();
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  } catch (e) { win.close(); }
+});
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  // nuke the iframe completely to kill all game processes
+  const wrap = document.querySelector('.frame-wrap');
+  const oldFrame = document.getElementById('frame');
+  oldFrame.remove();
+  const newFrame = document.createElement('iframe');
+  newFrame.id = 'frame';
+  newFrame.allowFullscreen = true;
+  newFrame.style.cssText = 'width:100%;height:100%;border:none;display:none;';
+  wrap.appendChild(newFrame);
+  document.getElementById('loading').style.display = 'flex';
+  currentGame = null;
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
