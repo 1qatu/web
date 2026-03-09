@@ -1,0 +1,30 @@
+[  
+  {
+    "id": 0,
+    "name": "Hollow Knight",
+    "cover": "{COVER_URL}/0.png",
+    "url": "{HTML_URL}/0.html",
+    "author": "aukak",
+  },
+  {
+    "id": 1,
+    "name": "Gorilla Tag",
+    "cover": "{COVER_URL}/1.png",
+    "url": "{HTML_URL}/1.html",
+    "author": "boolonx",
+  },
+  {
+    "id": 2,
+    "name": "Raldi's Crackhouse",
+    "cover": "{COVER_URL}/2.png",
+    "url": "{HTML_URL}/2.html",
+    "author": "greyson",
+  },
+  {
+    "id": 3,
+    "name": "Minecraft 1.12",
+    "cover": "{COVER_URL}/3.png",
+    "url": "{HTML_URL}/3.html",
+    "author": "ratman4090, lax1dude",
+  },
+]
